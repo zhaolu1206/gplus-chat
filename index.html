@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gplus chat</title>
+<style>
+body{margin:0;background:#111;color:#eee;font-family:sans-serif}
+#chat{height:80vh;overflow:auto;padding:10px}
+.msg{margin:5px 0}
+.me{color:#4ade80}
+#bar{display:flex;height:20vh}
+input{flex:1;background:#000;color:#fff;border:none;padding:10px;font-size:16px}
+button{width:80px;border:none;background:#2563eb;color:#fff}
+</style>
+</head>
+<body>
+
+<div id="chat"></div>
+<div id="bar">
+  <input id="msg" placeholder="输入消息 回车发送">
+  <button onclick="send()">发送</button>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('msg');
+const ws = new WebSocket('wss://echo.websocket.events');
+
+ws.onopen = () => add('系统','已连接');
+ws.onmessage = e => add('匿名',e.data);
+ws.onclose = () => add('系统','已断开');
+
+function add(u,t){
+  const d=document.createElement('div');
+  d.className='msg'+(u==='我'?' me':'');
+  d.textContent=u+': '+t;
+  chat.appendChild(d);
+  chat.scrollTop=chat.scrollHeight;
+}
+function send(){
+  if(!input.value)return;
+  ws.send(input.value);
+  add('我',input.value);
+  input.value='';
+}
+input.onkeydown=e=>e.key==='Enter'&&send();
+</script>
+
+</body>
+</html>
